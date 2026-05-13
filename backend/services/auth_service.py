@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import bcrypt
 import jwt
 from fastapi import HTTPException, status
 
 from backend.config import ACCESS_TOKEN_EXPIRE_DAYS, JWT_ALGORITHM, JWT_SECRET_KEY
+from auth.auth_utils import hash_password, verify_password
 
 
 ROLE_LEVELS = {
@@ -70,18 +70,6 @@ def validate_role(role: str) -> str:
 
 def has_minimum_role(user_role: str, required_role: str) -> bool:
     return ROLE_LEVELS[user_role] >= ROLE_LEVELS[required_role]
-
-
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    try:
-        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
-    except ValueError:
-        return False
-
 
 def create_access_token(payload: dict[str, Any]) -> str:
     token_payload = payload.copy()

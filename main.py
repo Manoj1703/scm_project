@@ -10,6 +10,7 @@ from backend.routes.info_routes import router as info_router
 from backend.routes.ping_routes import router as ping_router
 from backend.middleware.request_id_middleware import request_id_middleware
 from core.logger import configure_logging
+from routes.auth.user_auth_routes import router as user_auth_router
 
 
 @asynccontextmanager
@@ -40,6 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(info_router)
     app.include_router(ping_router)
+    app.include_router(user_auth_router)
     return app
 
 
