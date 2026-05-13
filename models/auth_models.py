@@ -1,3 +1,4 @@
+import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
@@ -11,6 +12,7 @@ class UserBase(BaseModel):
 
     name: str = Field(min_length=2, max_length=50)
     email: EmailStr
+    phone_number: str | None = None
 
     @field_validator("name")
     @classmethod
@@ -20,9 +22,23 @@ class UserBase(BaseModel):
             raise ValueError("Name must be at least 2 characters long.")
         return cleaned
 
+    @field_validator("phone_number")
+    @classmethod
+    def validate_phone_number(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+
+        cleaned = re.sub(r"[\s\-\(\)]", "", value)
+        if not re.fullmatch(r"\+?[0-9]{10,15}", cleaned):
+            raise ValueError(
+                "Phone number must contain 10 to 15 digits and may start with +."
+            )
+        return cleaned
+
 
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
+    phone_number: str = Field(min_length=7, max_length=20)
     role: Literal["customer"] = "customer"
 
 

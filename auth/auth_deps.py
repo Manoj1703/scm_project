@@ -44,5 +44,6 @@ async def get_current_user(
         id=str(user_document["_id"]),
         name=user_document["name"],
         email=user_document["email"],
+        phone_number=user_document.get("phone_number"),
         role=user_document.get("role", "customer"),
     )

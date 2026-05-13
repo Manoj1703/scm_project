@@ -29,6 +29,7 @@ async def signup(
     user_document = {
         "name": payload.name,
         "email": email,
+        "phone_number": payload.phone_number,
         "hashed_password": hash_password(payload.password),
         "role": "customer",
         "created_at": utc_now(),
@@ -47,6 +48,7 @@ async def signup(
         id=str(result.inserted_id),
         name=user_document["name"],
         email=user_document["email"],
+        phone_number=user_document["phone_number"],
         role=user_document["role"],
     )
 

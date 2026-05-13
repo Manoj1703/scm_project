@@ -15,6 +15,7 @@ def _to_user_out(user_document: dict) -> UserOut:
         id=str(user_document["_id"]),
         name=user_document["name"],
         email=user_document["email"],
+        phone_number=user_document.get("phone_number"),
         role=user_document.get("role", "customer"),
     )
 

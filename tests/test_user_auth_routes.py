@@ -38,22 +38,34 @@ class FakeDb:
 
 def test_signup_creates_customer_user_and_excludes_password():
     fake_db = FakeDb()
-    payload = UserCreate(name="Alice Example", email="alice@example.com", password="StrongPass123!")
+    payload = UserCreate(
+        name="Alice Example",
+        email="alice@example.com",
+        phone_number="+1 (555) 123-4567",
+        password="StrongPass123!",
+    )
 
     result = asyncio.run(signup(payload, fake_db))
 
     assert result.email == "alice@example.com"
     assert result.name == "Alice Example"
+    assert result.phone_number == "+15551234567"
     assert result.role == "customer"
     assert not hasattr(result, "hashed_password")
     assert fake_db.users.documents[0]["is_active"] is True
     assert fake_db.users.documents[0]["role"] == "customer"
+    assert fake_db.users.documents[0]["phone_number"] == "+15551234567"
     assert "hashed_password" in fake_db.users.documents[0]
 
 
 def test_signup_duplicate_email_returns_409():
     fake_db = FakeDb()
-    payload = UserCreate(name="Alice Example", email="alice@example.com", password="StrongPass123!")
+    payload = UserCreate(
+        name="Alice Example",
+        email="alice@example.com",
+        phone_number="+15551234567",
+        password="StrongPass123!",
+    )
 
     asyncio.run(signup(payload, fake_db))
 
