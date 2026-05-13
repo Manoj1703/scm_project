@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     MONGO_URL: str
     DB_NAME: str
     JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = "development"
     ACCESS_TOKEN_EXPIRE_DAYS: int = 7
     CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(default_factory=list)
@@ -39,3 +40,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    return settings

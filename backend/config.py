@@ -1,4 +1,4 @@
-from back_end.config import settings
+from back_end.config import get_settings as _get_settings, settings
 
 
 APP_TITLE = settings.APP_TITLE
@@ -9,6 +9,7 @@ APP_PORT = settings.APP_PORT
 MONGO_URL = settings.MONGO_URL
 DB_NAME = settings.DB_NAME
 JWT_SECRET = settings.JWT_SECRET
+JWT_ALGORITHM = settings.JWT_ALGORITHM
 ENVIRONMENT = settings.ENVIRONMENT
 ACCESS_TOKEN_EXPIRE_DAYS = settings.ACCESS_TOKEN_EXPIRE_DAYS
 CORS_ORIGINS = settings.CORS_ORIGINS
@@ -19,3 +20,7 @@ INITIAL_SUPER_ADMIN_PASSWORD = settings.INITIAL_SUPER_ADMIN_PASSWORD
 MONGODB_URI = MONGO_URL
 MONGODB_DB_NAME = DB_NAME
 JWT_SECRET_KEY = JWT_SECRET
+
+
+def get_settings():
+    return _get_settings()
