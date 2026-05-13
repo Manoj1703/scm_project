@@ -1,11 +1,6 @@
-from datetime import datetime, timedelta, timezone
-from typing import Any
-
-import jwt
 from fastapi import HTTPException, status
 
-from backend.config import ACCESS_TOKEN_EXPIRE_DAYS, JWT_ALGORITHM, JWT_SECRET_KEY
-from auth.auth_utils import hash_password, verify_password
+from auth.auth_utils import create_access_token, decode_access_token, hash_password, verify_password
 
 
 ROLE_LEVELS = {
@@ -70,41 +65,3 @@ def validate_role(role: str) -> str:
 
 def has_minimum_role(user_role: str, required_role: str) -> bool:
     return ROLE_LEVELS[user_role] >= ROLE_LEVELS[required_role]
-
-def create_access_token(payload: dict[str, Any]) -> str:
-    token_payload = payload.copy()
-    expires_at = datetime.now(timezone.utc) + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
-    token_payload.update(
-        {
-            "exp": expires_at,
-            "iat": datetime.now(timezone.utc),
-            "type": "access",
-        }
-    )
-    return jwt.encode(token_payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-
-
-def decode_access_token(token: str) -> dict[str, Any]:
-    try:
-        decoded = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
-    except jwt.ExpiredSignatureError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired.",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
-    except jwt.InvalidTokenError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token.",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
-
-    if decoded.get("type") != "access":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return decoded

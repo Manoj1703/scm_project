@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     DB_NAME: str
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = "development"
     ACCESS_TOKEN_EXPIRE_DAYS: int = 7
     CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(default_factory=list)
