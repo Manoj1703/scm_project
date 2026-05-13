@@ -1,6 +1,5 @@
-from back_end.db.database import (
+from .database import (
     close_db,
-    db_dependency,
     get_db,
     get_users_collection,
     init_db,
