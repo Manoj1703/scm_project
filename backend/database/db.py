@@ -23,6 +23,7 @@ async def init_db() -> bool:
         await client.admin.command("ping")
         await database.users.create_index("email", unique=True)
         await database.users.create_index("id", unique=True)
+        await database.users.create_index("role")
     except Exception:
         client.close()
         _client = None

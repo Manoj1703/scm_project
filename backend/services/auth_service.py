@@ -8,6 +8,13 @@ from fastapi import HTTPException, status
 from backend.config import ACCESS_TOKEN_EXPIRE_DAYS, JWT_ALGORITHM, JWT_SECRET_KEY
 
 
+ROLE_LEVELS = {
+    "user": 1,
+    "admin": 2,
+    "super_admin": 3,
+}
+
+
 def validate_password_strength(password: str) -> None:
     if len(password) < 8:
         raise HTTPException(
@@ -50,6 +57,19 @@ def validate_password_strength(password: str) -> None:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Password must contain at least one special character.",
         )
+
+
+def validate_role(role: str) -> str:
+    if role not in ROLE_LEVELS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid role.",
+        )
+    return role
+
+
+def has_minimum_role(user_role: str, required_role: str) -> bool:
+    return ROLE_LEVELS[user_role] >= ROLE_LEVELS[required_role]
 
 
 def hash_password(password: str) -> str:
