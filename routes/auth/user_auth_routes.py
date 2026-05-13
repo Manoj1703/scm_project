@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
+from auth.auth_deps import get_current_user
 from auth.auth_utils import create_access_token, hash_password, verify_password
 from backend.database.db import get_db
 from backend.utils.common import normalize_email, utc_now
@@ -78,3 +79,8 @@ async def login(
         }
     )
     return Token(access_token=access_token, token_type="bearer")
+
+
+@router.get("/me", response_model=UserOut)
+async def read_current_user(current_user: UserOut = Depends(get_current_user)) -> UserOut:
+    return current_user
