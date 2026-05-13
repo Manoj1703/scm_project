@@ -33,7 +33,7 @@ class UserLogin(BaseModel):
 
 class UserOut(UserBase):
     id: str
-    role: Literal["customer"] = "customer"
+    role: UserRole = "customer"
 
 
 class UserInDB(UserOut):
@@ -43,3 +43,11 @@ class UserInDB(UserOut):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+
+
+class MessageResponse(BaseModel):
+    message: str
