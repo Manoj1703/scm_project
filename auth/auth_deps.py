@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from auth.auth_utils import decode_access_token
 from backend.database.db import get_db
-from models.auth_models import UserOut
+from models.auth_models import DEFAULT_USER_ROLE, UserOut
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
@@ -45,5 +45,5 @@ async def get_current_user(
         name=user_document["name"],
         email=user_document["email"],
         phone_number=user_document.get("phone_number"),
-        role=user_document.get("role", "customer"),
+        role=user_document.get("role", DEFAULT_USER_ROLE),
     )

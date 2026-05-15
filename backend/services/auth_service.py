@@ -1,12 +1,13 @@
 from fastapi import HTTPException, status
 
+from auth.access_control import Role
 from auth.auth_utils import create_access_token, decode_access_token, hash_password, verify_password
 
 
 ROLE_LEVELS = {
-    "user": 1,
-    "admin": 2,
-    "super_admin": 3,
+    Role.USER.value: 1,
+    Role.ADMIN.value: 2,
+    Role.SUPER_ADMIN.value: 3,
 }
 
 

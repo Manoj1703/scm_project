@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 UserRole = Literal["customer", "user", "admin", "super_admin"]
+DEFAULT_USER_ROLE: UserRole = "customer"
 
 
 class UserBase(BaseModel):
@@ -39,7 +40,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
     phone_number: str = Field(min_length=7, max_length=20)
-    role: Literal["customer"] = "customer"
+    role: Literal["customer"] = DEFAULT_USER_ROLE
 
 
 class UserLogin(BaseModel):
@@ -49,7 +50,7 @@ class UserLogin(BaseModel):
 
 class UserOut(UserBase):
     id: str
-    role: UserRole = "customer"
+    role: UserRole = DEFAULT_USER_ROLE
 
 
 class UserInDB(UserOut):

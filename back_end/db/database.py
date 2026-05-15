@@ -24,10 +24,7 @@ class MongoSingleton:
 
         try:
             await client.admin.command("ping")
-            indexes = await database.users.index_information()
-            if "id_1" in indexes:
-                await database.users.drop_index("id_1")
-            await database.users.create_index("email", unique=True)
+            await ensure_indexes(database)
         except Exception as exc:
             client.close()
             raise RuntimeError("Unable to connect to MongoDB.") from exc
@@ -61,6 +58,15 @@ class MongoSingleton:
 
 
 mongo = MongoSingleton()
+
+
+async def ensure_indexes(database: AsyncIOMotorDatabase) -> None:
+    indexes = await database.users.index_information()
+    if "id_1" in indexes:
+        await database.users.drop_index("id_1")
+
+    await database.users.create_index("email", unique=True)
+    await database.shipments.create_index("tracking_id", unique=True)
 
 
 async def init_db() -> bool:

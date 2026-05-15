@@ -3,6 +3,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from auth.access_control import Role
 from backend.config import INITIAL_SUPER_ADMIN_EMAIL, INITIAL_SUPER_ADMIN_NAME, INITIAL_SUPER_ADMIN_PASSWORD
 from backend.database.db import get_users_collection
 from backend.models.user_model import (
@@ -32,7 +33,7 @@ def _to_public_user(user_document: dict) -> UserPublic:
         id=user_document["id"],
         name=user_document["name"],
         email=user_document["email"],
-        role=user_document.get("role", "user"),
+        role=user_document.get("role", Role.USER.value),
     )
 
 
@@ -89,7 +90,7 @@ def _build_token_payload(user_document: dict) -> dict[str, str]:
     return {
         "sub": user_document["id"],
         "email": user_document["email"],
-        "role": user_document.get("role", "user"),
+        "role": user_document.get("role", Role.USER.value),
     }
 
 
@@ -123,7 +124,7 @@ async def signup(payload: UserSignupRequest) -> AuthResponse:
         name=payload.name,
         email=email,
         password=payload.password,
-        role="user",
+        role=Role.USER.value,
     )
 
     await users.insert_one(user_document)
@@ -148,7 +149,7 @@ async def login(payload: UserLoginRequest) -> AuthResponse:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    stored_role = user_document.get("role", "user")
+    stored_role = user_document.get("role", Role.USER.value)
     if payload.role != stored_role:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -168,13 +169,15 @@ async def read_current_user(current_user: UserPublic = Depends(get_current_user)
 
 
 @router.get("/admin/me", response_model=UserPublic)
-async def read_admin_profile(current_user: UserPublic = Depends(_role_guard("admin", "super_admin"))) -> UserPublic:
+async def read_admin_profile(
+    current_user: UserPublic = Depends(_role_guard(Role.ADMIN.value, Role.SUPER_ADMIN.value))
+) -> UserPublic:
     return current_user
 
 
 @router.get("/super-admin/me", response_model=UserPublic)
 async def read_super_admin_profile(
-    current_user: UserPublic = Depends(_role_guard("super_admin")),
+    current_user: UserPublic = Depends(_role_guard(Role.SUPER_ADMIN.value)),
 ) -> UserPublic:
     return current_user
 
@@ -182,7 +185,7 @@ async def read_super_admin_profile(
 @router.post("/admin/users", response_model=CreateUserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_by_admin(
     payload: CreateUserRequest,
-    current_user: UserPublic = Depends(_role_guard("super_admin")),
+    current_user: UserPublic = Depends(_role_guard(Role.SUPER_ADMIN.value)),
 ) -> CreateUserResponse:
     users = get_users_collection()
     email = normalize_email(str(payload.email))
@@ -225,7 +228,7 @@ async def ensure_initial_super_admin() -> bool:
         name=INITIAL_SUPER_ADMIN_NAME,
         email=email,
         password=INITIAL_SUPER_ADMIN_PASSWORD,
-        role="super_admin",
+        role=Role.SUPER_ADMIN.value,
     )
     await users.insert_one(user_document)
     return True

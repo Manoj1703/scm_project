@@ -1,5 +1,6 @@
 from back_end.db.database import (
     close_db,
+    ensure_indexes,
     db_dependency,
     get_db,
     get_users_collection,
@@ -8,4 +9,3 @@ from back_end.db.database import (
     mongo,
     ping_db,
 )
-

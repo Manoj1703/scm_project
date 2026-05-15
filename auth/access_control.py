@@ -20,6 +20,8 @@ ROLE_RANKS: dict[Role, int] = {
     Role.SUPER_ADMIN: 3,
 }
 
+ADMIN_ROLES = frozenset({Role.ADMIN.value, Role.SUPER_ADMIN.value})
+
 
 def require_role(required_role: str):
     required = Role(required_role)

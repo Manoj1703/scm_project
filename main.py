@@ -13,6 +13,8 @@ from backend.routes.ping_routes import router as ping_router
 from backend.middleware.request_id_middleware import request_id_middleware
 from core.logger import configure_logging
 from routes.auth.user_auth_routes import router as user_auth_router
+from routes.auth.user_auth_routes import users_router as users_router
+from routes.shipment_routes import router as shipment_router
 
 
 @asynccontextmanager
@@ -46,6 +48,8 @@ def create_app() -> FastAPI:
     app.include_router(ping_router)
     app.include_router(admin_auth_router)
     app.include_router(user_auth_router)
+    app.include_router(users_router)
+    app.include_router(shipment_router)
     return app
 
 

@@ -2,7 +2,7 @@ from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from auth.access_control import require_role
+from auth.access_control import Role, require_role
 from backend.database.db import get_db
 from models.auth_models import MessageResponse, UserOut, UserRoleUpdate
 
@@ -16,7 +16,7 @@ def _to_user_out(user_document: dict) -> UserOut:
         name=user_document["name"],
         email=user_document["email"],
         phone_number=user_document.get("phone_number"),
-        role=user_document.get("role", "customer"),
+        role=user_document.get("role", Role.CUSTOMER.value),
     )
 
 
@@ -33,7 +33,7 @@ def _parse_object_id(user_id: str) -> ObjectId:
 @router.get("/users", response_model=list[UserOut])
 async def list_users(
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserOut = Depends(require_role("admin")),
+    current_user: UserOut = Depends(require_role(Role.ADMIN.value)),
 ) -> list[UserOut]:
     users: list[UserOut] = []
     async for document in db.users.find({}):
@@ -46,7 +46,7 @@ async def update_user_role(
     user_id: str,
     payload: UserRoleUpdate,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserOut = Depends(require_role("admin")),
+    current_user: UserOut = Depends(require_role(Role.ADMIN.value)),
 ) -> UserOut:
     object_id = _parse_object_id(user_id)
     result = await db.users.update_one({"_id": object_id}, {"$set": {"role": payload.role}})
@@ -69,7 +69,7 @@ async def update_user_role(
 async def delete_user(
     user_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
-    current_user: UserOut = Depends(require_role("admin")),
+    current_user: UserOut = Depends(require_role(Role.ADMIN.value)),
 ) -> MessageResponse:
     object_id = _parse_object_id(user_id)
     result = await db.users.delete_one({"_id": object_id})
